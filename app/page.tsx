@@ -1,21 +1,66 @@
 'use client';
 
 import { useState } from 'react';
+import axios from 'axios';
 import QRReader from '@/components/QRReader';
+import { PatientInfo } from '@/types';
 import { APP_NAME } from '@/config/constants';
+import { format } from 'date-fns';
 
 export default function Home() {
   const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const [patientInfo, setPatientInfo] = useState<PatientInfo | null>(null);
 
-  const handleScan = (patientId: string) => {
+  const handleScan = async (patientId: string) => {
     console.log('Patient ID scanned:', patientId);
-    // TODO: Googleカレンダーから患者情報を取得する処理を追加
-    alert(`患者ID: ${patientId} を読み取りました！\n\n（次のステップ: カレンダー連携で患者情報を取得）`);
+    setError('');
+    setLoading(true);
+
+    try {
+      // 現在の日付を取得
+      const today = format(new Date(), 'yyyy-MM-dd');
+
+      // Googleカレンダーから患者情報を取得
+      const response = await axios.post('/api/calendar/search', {
+        patientId,
+        date: today,
+      });
+
+      if (response.data.success) {
+        const info = response.data.data as PatientInfo;
+        setPatientInfo(info);
+
+        // 来院通知を送信
+        if (info.eventId) {
+          await axios.post('/api/calendar/notify', {
+            eventId: info.eventId,
+            visitTime: new Date().toISOString(),
+          });
+        }
+      } else {
+        setError(response.data.error?.message || 'エラーが発生しました');
+      }
+    } catch (err) {
+      console.error('Error fetching patient info:', err);
+      if (axios.isAxiosError(err) && err.response) {
+        setError(err.response.data.error?.message || 'サーバーエラーが発生しました');
+      } else {
+        setError('ネットワークエラーが発生しました');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleError = (error: Error) => {
     console.error('QR Reader error:', error);
     setError(error.message);
+  };
+
+  const handleClose = () => {
+    setPatientInfo(null);
+    setError('');
   };
 
   return (
@@ -55,13 +100,126 @@ export default function Home() {
         </div>
 
         {/* QRリーダー */}
-        <div className="mb-8">
-          <QRReader onScan={handleScan} onError={handleError} />
-        </div>
+        {!patientInfo && (
+          <div className="mb-8">
+            <QRReader onScan={handleScan} onError={handleError} />
+          </div>
+        )}
+
+        {/* ローディング表示 */}
+        {loading && (
+          <div className="max-w-2xl mx-auto p-8 bg-white border border-gray-200 rounded-lg text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4" />
+            <p className="text-gray-700 font-medium">患者情報を取得中...</p>
+          </div>
+        )}
+
+        {/* 患者情報表示 */}
+        {patientInfo && !loading && (
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-white border-2 border-green-500 rounded-lg shadow-lg overflow-hidden">
+              {/* ヘッダー */}
+              <div className="bg-green-500 text-white px-6 py-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-2xl font-bold">✅ 受付完了</h3>
+                  <button
+                    onClick={handleClose}
+                    className="text-white hover:text-green-100 text-2xl"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              {/* 患者情報 */}
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">患者名</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {patientInfo.patientName} 様
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500 mb-1">診察日時</p>
+                    <p className="text-lg font-medium text-gray-900">
+                      {new Date(patientInfo.examDate).toLocaleString('ja-JP', {
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-200 pt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">診察科</p>
+                      <p className="text-lg font-medium text-gray-900">
+                        {patientInfo.department}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">担当医</p>
+                      <p className="text-lg font-medium text-gray-900">
+                        {patientInfo.doctor} 先生
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 mb-1">待機場所</p>
+                      <p className="text-lg font-medium text-gray-900">
+                        {patientInfo.waitingArea}
+                      </p>
+                    </div>
+                    {patientInfo.examinations.length > 0 && (
+                      <div>
+                        <p className="text-sm text-gray-500 mb-1">検査内容</p>
+                        <p className="text-lg font-medium text-gray-900">
+                          {patientInfo.examinations.join(', ')}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 案内メッセージ */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                  <p className="text-blue-900 font-medium">
+                    🔊 {patientInfo.examinations.length > 0 ? '検査がある場合は' : ''}
+                    <strong className="text-blue-700">{patientInfo.department}</strong>前に、
+                    {patientInfo.examinations.length === 0 && ''}
+                    無い場合は
+                    <strong className="text-blue-700">{patientInfo.waitingArea}</strong>前に
+                    お越しください。
+                    <strong className="text-blue-700">{patientInfo.doctor}</strong>先生が担当します。
+                  </p>
+                </div>
+
+                {/* ボタン */}
+                <div className="flex gap-4 mt-6">
+                  <button
+                    onClick={handleClose}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    次の患者
+                  </button>
+                  <button
+                    onClick={() => window.print()}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                  >
+                    🖨 診察票を印刷
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* エラー表示 */}
         {error && (
-          <div className="max-w-2xl mx-auto p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="max-w-2xl mx-auto p-4 bg-red-50 border border-red-200 rounded-lg mt-8">
             <div className="flex items-start gap-3">
               <span className="text-2xl">⚠️</span>
               <div>
