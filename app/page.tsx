@@ -18,28 +18,51 @@ export default function Home() {
     setLoading(true);
 
     try {
-      // 現在の日付を取得
-      const today = format(new Date(), 'yyyy-MM-dd');
+      // モックモード判定（開発用）
+      const useMockData = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true' || !process.env.GOOGLE_CALENDAR_ID;
 
-      // Googleカレンダーから患者情報を取得
-      const response = await axios.post('/api/calendar/search', {
-        patientId,
-        date: today,
-      });
+      if (useMockData) {
+        // モックデータを使用
+        console.log('📝 モックデータモードで動作中');
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // 1秒待機（APIっぽく）
 
-      if (response.data.success) {
-        const info = response.data.data as PatientInfo;
-        setPatientInfo(info);
+        const mockInfo: PatientInfo = {
+          patientId,
+          patientName: '山田太郎',
+          examDate: new Date().toISOString(),
+          examinations: ['血液検査', 'MRI'],
+          doctor: '田中花子',
+          department: '内科',
+          waitingArea: '2階待合室A',
+          eventId: 'mock-event-id',
+        };
 
-        // 来院通知を送信
-        if (info.eventId) {
-          await axios.post('/api/calendar/notify', {
-            eventId: info.eventId,
-            visitTime: new Date().toISOString(),
-          });
-        }
+        setPatientInfo(mockInfo);
+        console.log('✅ モックデータ表示完了');
       } else {
-        setError(response.data.error?.message || 'エラーが発生しました');
+        // 現在の日付を取得
+        const today = format(new Date(), 'yyyy-MM-dd');
+
+        // Googleカレンダーから患者情報を取得
+        const response = await axios.post('/api/calendar/search', {
+          patientId,
+          date: today,
+        });
+
+        if (response.data.success) {
+          const info = response.data.data as PatientInfo;
+          setPatientInfo(info);
+
+          // 来院通知を送信
+          if (info.eventId) {
+            await axios.post('/api/calendar/notify', {
+              eventId: info.eventId,
+              visitTime: new Date().toISOString(),
+            });
+          }
+        } else {
+          setError(response.data.error?.message || 'エラーが発生しました');
+        }
       }
     } catch (err) {
       console.error('Error fetching patient info:', err);
