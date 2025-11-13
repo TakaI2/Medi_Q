@@ -1,100 +1,117 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import QRReader from '@/components/QRReader';
+import { APP_NAME } from '@/config/constants';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [error, setError] = useState<string>('');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleScan = (patientId: string) => {
+    console.log('Patient ID scanned:', patientId);
+    // TODO: Googleカレンダーから患者情報を取得する処理を追加
+    alert(`患者ID: ${patientId} を読み取りました！\n\n（次のステップ: カレンダー連携で患者情報を取得）`);
+  };
+
+  const handleError = (error: Error) => {
+    console.error('QR Reader error:', error);
+    setError(error.message);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      {/* ヘッダー */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-blue-600">{APP_NAME}</h1>
+              <p className="text-sm text-gray-600 mt-1">
+                QRコード来院者管理システム
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-sm font-medium text-green-700">
+                  システム稼働中
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* メインコンテンツ */}
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {/* タイトル */}
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            診察券のQRコードをかざしてください
+          </h2>
+          <p className="text-gray-600">
+            QRコードを読み取ると、自動的に受付を行います
+          </p>
+        </div>
+
+        {/* QRリーダー */}
+        <div className="mb-8">
+          <QRReader onScan={handleScan} onError={handleError} />
+        </div>
+
+        {/* エラー表示 */}
+        {error && (
+          <div className="max-w-2xl mx-auto p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <h3 className="font-bold text-red-900 mb-1">エラー</h3>
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* システム情報 */}
+        <div className="mt-12 max-w-2xl mx-auto">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">
+              システム状態
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <span className="text-2xl">📷</span>
+                <div>
+                  <p className="text-xs text-gray-500">カメラ</p>
+                  <p className="font-medium text-gray-900">準備完了</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <span className="text-2xl">📅</span>
+                <div>
+                  <p className="text-xs text-gray-500">カレンダー</p>
+                  <p className="font-medium text-gray-900">未設定</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                <span className="text-2xl">🔊</span>
+                <div>
+                  <p className="text-xs text-gray-500">音声</p>
+                  <p className="font-medium text-gray-900">未設定</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      {/* フッター */}
+      <footer className="mt-16 bg-gray-50 border-t border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+          <p className="text-center text-sm text-gray-500">
+            © 2025 {APP_NAME}. Built with Next.js
+          </p>
+        </div>
       </footer>
     </div>
   );
