@@ -15,8 +15,32 @@ export default function QRReader({ onScan, onError }: QRReaderProps) {
   const [isScanning, setIsScanning] = useState(false);
   const [lastScan, setLastScan] = useState<string>('');
   const [cameraError, setCameraError] = useState<string>('');
+  const [isMounted, setIsMounted] = useState(false);
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedDevice, setSelectedDevice] = useState<string>('');
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const codeReaderRef = useRef<BrowserQRCodeReader | null>(null);
+
+  // クライアントサイドでのみ実行
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // カメラデバイス一覧を取得
+  const getDevices = async () => {
+    try {
+      const deviceInfos = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = deviceInfos.filter(
+        (device) => device.kind === 'videoinput'
+      );
+      setDevices(videoDevices);
+      if (videoDevices.length > 0 && !selectedDevice) {
+        setSelectedDevice(videoDevices[0].deviceId);
+      }
+    } catch (err) {
+      console.error('デバイス取得エラー:', err);
+    }
+  };
 
   // QRコードリーダーの初期化
   useEffect(() => {
@@ -129,6 +153,7 @@ export default function QRReader({ onScan, onError }: QRReaderProps) {
   const handleUserMedia = () => {
     setCameraError('');
     startScanning();
+    getDevices();
   };
 
   // カメラエラー時
@@ -142,19 +167,35 @@ export default function QRReader({ onScan, onError }: QRReaderProps) {
     <div className="relative w-full max-w-2xl mx-auto">
       {/* カメラ映像 */}
       <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden">
-        <Webcam
-          ref={webcamRef}
-          audio={false}
-          screenshotFormat="image/jpeg"
-          videoConstraints={{
-            facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-          }}
-          onUserMedia={handleUserMedia}
-          onUserMediaError={handleUserMediaError}
-          className="w-full h-full object-cover"
-        />
+        {isMounted ? (
+          <Webcam
+            ref={webcamRef}
+            audio={false}
+            screenshotFormat="image/jpeg"
+            videoConstraints={
+              selectedDevice
+                ? {
+                    deviceId: { exact: selectedDevice },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                  }
+                : {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                  }
+            }
+            onUserMedia={handleUserMedia}
+            onUserMediaError={handleUserMediaError}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-white">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4" />
+              <p>カメラを初期化中...</p>
+            </div>
+          </div>
+        )}
 
         {/* スキャンガイドフレーム */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -189,6 +230,30 @@ export default function QRReader({ onScan, onError }: QRReaderProps) {
           <p className="text-red-600 text-xs mt-2">
             ブラウザの設定でカメラへのアクセスを許可してください。
           </p>
+        </div>
+      )}
+
+      {/* カメラ選択 */}
+      {devices.length > 1 && (
+        <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <h3 className="text-gray-900 font-bold mb-2">📷 カメラ選択</h3>
+          <div className="space-y-2">
+            {devices.map((device, index) => (
+              <button
+                key={device.deviceId}
+                onClick={() => setSelectedDevice(device.deviceId)}
+                className={`w-full text-left px-4 py-2 rounded-lg border transition-colors ${
+                  selectedDevice === device.deviceId
+                    ? 'bg-blue-50 border-blue-500 text-blue-700'
+                    : 'bg-white border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <div className="font-medium text-sm">
+                  カメラ {index + 1}: {device.label || '名称不明'}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 

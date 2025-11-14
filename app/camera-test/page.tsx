@@ -163,12 +163,18 @@ export default function CameraTestPage() {
                   ref={webcamRef}
                   audio={false}
                   screenshotFormat="image/jpeg"
-                  videoConstraints={{
-                    deviceId: selectedDevice || undefined,
-                    facingMode: 'environment',
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                  }}
+                  videoConstraints={
+                    selectedDevice
+                      ? {
+                          deviceId: { exact: selectedDevice },
+                          width: { ideal: 1280 },
+                          height: { ideal: 720 },
+                        }
+                      : {
+                          width: { ideal: 1280 },
+                          height: { ideal: 720 },
+                        }
+                  }
                   onUserMedia={handleUserMedia}
                   onUserMediaError={handleUserMediaError}
                   className="w-full h-full object-cover"
