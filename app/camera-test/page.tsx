@@ -43,13 +43,15 @@ export default function CameraTestPage() {
   };
 
   // カメラエラー
-  const handleUserMediaError = (err: Error) => {
+  const handleUserMediaError = (err: string | DOMException) => {
     console.error('❌ カメラエラー:', err);
     setCameraReady(false);
 
     let errorMessage = 'カメラの起動に失敗しました。';
 
-    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+    if (typeof err === 'string') {
+      errorMessage = `⚠️ エラー: ${err}`;
+    } else if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
       errorMessage = '⚠️ カメラの権限が拒否されました。ブラウザの設定でカメラへのアクセスを許可してください。';
     } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
       errorMessage = '⚠️ カメラが見つかりませんでした。カメラが接続されているか確認してください。';

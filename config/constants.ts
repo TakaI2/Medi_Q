@@ -47,6 +47,18 @@ export function generateVoiceText(
   return `${VOICE_TEMPLATES.welcome}${guidance}${VOICE_TEMPLATES.closing}`;
 }
 
+// エラーコード
+export enum ErrorCode {
+  INVALID_REQUEST = 'INVALID_REQUEST',
+  INVALID_QR_CODE = 'INVALID_QR_CODE',
+  NOT_FOUND = 'NOT_FOUND',
+  CALENDAR_ERROR = 'CALENDAR_ERROR',
+  VOICE_ERROR = 'VOICE_ERROR',
+  NETWORK_ERROR = 'NETWORK_ERROR',
+  CAMERA_PERMISSION = 'CAMERA_PERMISSION',
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+}
+
 // エラーメッセージ
 export const ERROR_MESSAGES = {
   INVALID_QR_CODE: '無効なQRコードです。正しい診察券をかざしてください。',

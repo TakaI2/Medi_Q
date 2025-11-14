@@ -1,16 +1,83 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import QRReader from '@/components/QRReader';
 import { PatientInfo } from '@/types';
 import { APP_NAME } from '@/config/constants';
 import { format } from 'date-fns';
+import { generateVoiceText } from '@/lib/voice';
 
 export default function Home() {
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [patientInfo, setPatientInfo] = useState<PatientInfo | null>(null);
+  const [voiceText, setVoiceText] = useState<string>('');
+  const [voiceAvailable, setVoiceAvailable] = useState<boolean>(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null); // 合成済み音声URL
+
+  // VOICEVOX Engineの状態確認
+  useEffect(() => {
+    const checkVoiceEngine = async () => {
+      try {
+        const response = await fetch('/api/voice/synthesize');
+        const data = await response.json();
+        setVoiceAvailable(data.success && data.data?.available);
+      } catch {
+        setVoiceAvailable(false);
+      }
+    };
+    checkVoiceEngine();
+  }, []);
+
+  // 患者情報が表示されたら音声テキストを生成し、音声合成
+  useEffect(() => {
+    const synthesizeVoiceAudio = async () => {
+      if (!patientInfo || !voiceAvailable) return;
+
+      const text = generateVoiceText(
+        patientInfo.patientName,
+        patientInfo.department,
+        patientInfo.doctor,
+        patientInfo.waitingArea,
+        patientInfo.examinations
+      );
+      setVoiceText(text);
+
+      // 既存の音声URLをクリーンアップ
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+        setAudioUrl(null);
+      }
+
+      try {
+        console.log('🎵 Synthesizing voice once...');
+        const response = await fetch('/api/voice/synthesize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, speaker: 3 }),
+        });
+
+        if (response.ok) {
+          const audioBlob = await response.blob();
+          const url = URL.createObjectURL(audioBlob);
+          setAudioUrl(url);
+          console.log('✅ Voice synthesis complete');
+        }
+      } catch (err) {
+        console.error('❌ Voice synthesis failed:', err);
+      }
+    };
+
+    synthesizeVoiceAudio();
+
+    // クリーンアップ
+    return () => {
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [patientInfo, voiceAvailable]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleScan = async (patientId: string) => {
     console.log('Patient ID scanned:', patientId);
@@ -207,18 +274,41 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* 案内メッセージ */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-                  <p className="text-blue-900 font-medium">
-                    🔊 {patientInfo.examinations.length > 0 ? '検査がある場合は' : ''}
-                    <strong className="text-blue-700">{patientInfo.department}</strong>前に、
-                    {patientInfo.examinations.length === 0 && ''}
-                    無い場合は
-                    <strong className="text-blue-700">{patientInfo.waitingArea}</strong>前に
-                    お越しください。
-                    <strong className="text-blue-700">{patientInfo.doctor}</strong>先生が担当します。
-                  </p>
-                </div>
+                {/* 音声案内 */}
+                {voiceAvailable && voiceText && audioUrl && (
+                  <div className="mt-4">
+                    <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0">
+                          🔊
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-lg text-gray-800">{voiceText}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <audio
+                      key={patientInfo.patientId + patientInfo.examDate}
+                      src={audioUrl}
+                      autoPlay
+                      onPlay={() => console.log('🔊 Audio playing')}
+                      onEnded={() => console.log('✅ Audio ended')}
+                    />
+                  </div>
+                )}
+                {!voiceAvailable && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                    <p className="text-blue-900 font-medium">
+                      🔊 {patientInfo.examinations.length > 0 ? '検査がある場合は' : ''}
+                      <strong className="text-blue-700">{patientInfo.department}</strong>前に、
+                      {patientInfo.examinations.length === 0 && ''}
+                      無い場合は
+                      <strong className="text-blue-700">{patientInfo.waitingArea}</strong>前に
+                      お越しください。
+                      <strong className="text-blue-700">{patientInfo.doctor}</strong>先生が担当します。
+                    </p>
+                  </div>
+                )}
 
                 {/* ボタン */}
                 <div className="flex gap-4 mt-6">
@@ -278,7 +368,9 @@ export default function Home() {
                 <span className="text-2xl">🔊</span>
                 <div>
                   <p className="text-xs text-gray-500">音声</p>
-                  <p className="font-medium text-gray-900">未設定</p>
+                  <p className={`font-medium ${voiceAvailable ? 'text-green-600' : 'text-gray-500'}`}>
+                    {voiceAvailable ? '利用可能' : '未起動'}
+                  </p>
                 </div>
               </div>
             </div>

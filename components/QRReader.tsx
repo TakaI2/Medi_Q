@@ -53,39 +53,8 @@ export default function QRReader({ onScan, onError }: QRReaderProps) {
     };
   }, []);
 
-  // QRコードをスキャンする関数
-  const scanQRCode = useCallback(async () => {
-    if (!webcamRef.current || !codeReaderRef.current) return;
-
-    const imageSrc = webcamRef.current.getScreenshot();
-    if (!imageSrc) return;
-
-    try {
-      // 画像をImageElementに変換
-      const img = new Image();
-      img.src = imageSrc;
-
-      await new Promise((resolve) => {
-        img.onload = resolve;
-      });
-
-      // QRコードをデコード
-      const result = await codeReaderRef.current.decodeFromImageElement(img);
-      const qrText = result.getText();
-
-      // 同じQRコードを連続してスキャンしないようにする
-      if (qrText && qrText !== lastScan) {
-        setLastScan(qrText);
-        handleQRCodeDetected(qrText);
-      }
-    } catch (error) {
-      // QRコードが見つからない場合は何もしない（エラーではない）
-      // console.log('QR code not found in frame');
-    }
-  }, [lastScan]);
-
   // QRコード検出時の処理
-  const handleQRCodeDetected = (qrText: string) => {
+  const handleQRCodeDetected = useCallback((qrText: string) => {
     // 患者IDの検証
     if (isValidPatientId(qrText)) {
       // 成功音を再生
@@ -111,7 +80,38 @@ export default function QRReader({ onScan, onError }: QRReaderProps) {
       playBeep(false);
       onError(new Error(ERROR_MESSAGES.INVALID_QR_CODE));
     }
-  };
+  }, [onScan, onError]);
+
+  // QRコードをスキャンする関数
+  const scanQRCode = useCallback(async () => {
+    if (!webcamRef.current || !codeReaderRef.current) return;
+
+    const imageSrc = webcamRef.current.getScreenshot();
+    if (!imageSrc) return;
+
+    try {
+      // 画像をImageElementに変換
+      const img = new Image();
+      img.src = imageSrc;
+
+      await new Promise((resolve) => {
+        img.onload = resolve;
+      });
+
+      // QRコードをデコード
+      const result = await codeReaderRef.current.decodeFromImageElement(img);
+      const qrText = result.getText();
+
+      // 同じQRコードを連続してスキャンしないようにする
+      if (qrText && qrText !== lastScan) {
+        setLastScan(qrText);
+        handleQRCodeDetected(qrText);
+      }
+    } catch {
+      // QRコードが見つからない場合は何もしない（エラーではない）
+      // console.log('QR code not found in frame');
+    }
+  }, [lastScan, handleQRCodeDetected]);
 
   // 患者IDの検証
   const isValidPatientId = (qrText: string): boolean => {
@@ -157,7 +157,7 @@ export default function QRReader({ onScan, onError }: QRReaderProps) {
   };
 
   // カメラエラー時
-  const handleUserMediaError = (error: Error) => {
+  const handleUserMediaError = (error: string | DOMException) => {
     console.error('Camera error:', error);
     setCameraError(ERROR_MESSAGES.CAMERA_PERMISSION);
     onError(new Error(ERROR_MESSAGES.CAMERA_PERMISSION));
