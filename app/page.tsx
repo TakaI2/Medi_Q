@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import QRReader from '@/components/QRReader';
 import { PatientInfo } from '@/types';
@@ -30,10 +30,29 @@ export default function Home() {
     checkVoiceEngine();
   }, []);
 
-  // 患者情報が表示されたら音声テキストを生成し、音声合成
+  // 患者情報が表示されたら音声テキストを生成し、音声合成（一度だけ実行）
+  const synthesizingRef = useRef<boolean>(false);
   useEffect(() => {
     const synthesizeVoiceAudio = async () => {
       if (!patientInfo || !voiceAvailable) return;
+
+      // 既に音声合成中の場合は実行しない
+      if (synthesizingRef.current) {
+        console.log('⚠️ Already synthesizing, skipping...');
+        return;
+      }
+
+      // 患者IDをキーとして、同じ患者の音声を二重に合成しないようにする
+      const patientKey = `${patientInfo.patientId}-${patientInfo.examDate}`;
+      const lastPatientKey = sessionStorage.getItem('lastPatientKey');
+
+      if (lastPatientKey === patientKey) {
+        console.log('⚠️ Same patient, skipping voice synthesis...');
+        return;
+      }
+
+      sessionStorage.setItem('lastPatientKey', patientKey);
+      synthesizingRef.current = true;
 
       const text = generateVoiceText(
         patientInfo.patientName,
@@ -66,6 +85,8 @@ export default function Home() {
         }
       } catch (err) {
         console.error('❌ Voice synthesis failed:', err);
+      } finally {
+        synthesizingRef.current = false;
       }
     };
 
@@ -151,6 +172,8 @@ export default function Home() {
   const handleClose = () => {
     setPatientInfo(null);
     setError('');
+    setAudioUrl(null);
+    sessionStorage.removeItem('lastPatientKey'); // 次の患者用にキーをクリア
   };
 
   return (

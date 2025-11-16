@@ -20,6 +20,7 @@ export default function QRReader({ onScan, onError }: QRReaderProps) {
   const [selectedDevice, setSelectedDevice] = useState<string>('');
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const codeReaderRef = useRef<BrowserQRCodeReader | null>(null);
+  const isProcessingRef = useRef<boolean>(false); // 処理中フラグ
 
   // クライアントサイドでのみ実行
   useEffect(() => {
@@ -55,26 +56,34 @@ export default function QRReader({ onScan, onError }: QRReaderProps) {
 
   // QRコード検出時の処理
   const handleQRCodeDetected = useCallback((qrText: string) => {
+    // 既に処理中の場合は無視
+    if (isProcessingRef.current) {
+      console.log('⚠️ Already processing, skipping...');
+      return;
+    }
+
     // 患者IDの検証
     if (isValidPatientId(qrText)) {
+      // 処理中フラグを立てる
+      isProcessingRef.current = true;
+
+      console.log('✅ Valid QR code detected:', qrText);
+
       // 成功音を再生
       playBeep(true);
 
-      // コールバック実行
-      onScan(qrText);
-
-      // スキャンを一時停止（連続スキャン防止）
+      // スキャンを完全に停止
       setIsScanning(false);
       if (scanIntervalRef.current) {
         clearInterval(scanIntervalRef.current);
         scanIntervalRef.current = null;
       }
 
-      // 2秒後にスキャン再開
-      setTimeout(() => {
-        setLastScan('');
-        startScanning();
-      }, 2000);
+      // コールバック実行
+      onScan(qrText);
+
+      // 処理中フラグは外部からリセットされるまで維持
+      // （「次の患者」ボタンクリック時にリセット）
     } else {
       // 無効なQRコード
       playBeep(false);
@@ -85,6 +94,9 @@ export default function QRReader({ onScan, onError }: QRReaderProps) {
   // QRコードをスキャンする関数
   const scanQRCode = useCallback(async () => {
     if (!webcamRef.current || !codeReaderRef.current) return;
+
+    // 処理中の場合はスキャンしない
+    if (isProcessingRef.current) return;
 
     const imageSrc = webcamRef.current.getScreenshot();
     if (!imageSrc) return;
@@ -103,7 +115,7 @@ export default function QRReader({ onScan, onError }: QRReaderProps) {
       const qrText = result.getText();
 
       // 同じQRコードを連続してスキャンしないようにする
-      if (qrText && qrText !== lastScan) {
+      if (qrText && qrText !== lastScan && !isProcessingRef.current) {
         setLastScan(qrText);
         handleQRCodeDetected(qrText);
       }
@@ -120,25 +132,35 @@ export default function QRReader({ onScan, onError }: QRReaderProps) {
     return regex.test(qrText);
   };
 
-  // ビープ音を再生
-  const playBeep = (success: boolean) => {
-    const audioContext = new AudioContext();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+  // ビープ音を再生（多重再生防止）
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const playBeep = useCallback((success: boolean) => {
+    try {
+      // 既存のAudioContextを再利用（初回のみ作成）
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContext();
+      }
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+      const audioContext = audioContextRef.current;
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
 
-    // 成功音: 800Hz、失敗音: 400Hz
-    oscillator.frequency.value = success ? 800 : 400;
-    oscillator.type = 'sine';
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
 
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+      // 成功音: 800Hz、失敗音: 400Hz
+      oscillator.frequency.value = success ? 800 : 400;
+      oscillator.type = 'sine';
 
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.2);
-  };
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.2);
+    } catch (err) {
+      console.error('Beep sound error:', err);
+    }
+  }, []);
 
   // スキャン開始
   const startScanning = useCallback(() => {
