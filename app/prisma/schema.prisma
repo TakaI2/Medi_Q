@@ -1,0 +1,125 @@
+// Medi_Q - QRコード来院者管理システム
+// Prisma Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// 患者
+model Patient {
+  id             Int        @id @default(autoincrement())
+  patientCode    String     @unique // QRコード値（例: P12345）
+  name           String
+  nameKana       String     // ふりがな（音声案内用）
+  voiceTemplate  String?    // カスタム音声テンプレート
+  printTemplate  String?    // カスタム印刷テンプレート
+  isDeleted      Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  schedules      Schedule[]
+
+  @@index([patientCode])
+  @@index([isDeleted])
+}
+
+// 予約
+model Schedule {
+  id             Int        @id @default(autoincrement())
+  patientId      Int
+  date           DateTime   // 予約日（時刻部分は00:00:00）
+  startTime      String     // 開始時刻（HH:mm）
+  endTime        String?    // 終了時刻（HH:mm）
+  departmentId   Int
+  doctorId       Int
+  waitingAreaId  Int
+  note           String?    // メモ
+  status         String     @default("scheduled") // scheduled, visited, cancelled
+  visitedAt      DateTime?  // 来院日時
+  isDeleted      Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  patient        Patient      @relation(fields: [patientId], references: [id])
+  department     Department   @relation(fields: [departmentId], references: [id])
+  doctor         Doctor       @relation(fields: [doctorId], references: [id])
+  waitingArea    WaitingArea  @relation(fields: [waitingAreaId], references: [id])
+  examinations   ScheduleExamination[]
+
+  @@index([patientId])
+  @@index([date])
+  @@index([status])
+  @@index([isDeleted])
+}
+
+// 予約-検査 中間テーブル
+model ScheduleExamination {
+  id             Int        @id @default(autoincrement())
+  scheduleId     Int
+  examinationId  Int
+
+  schedule       Schedule    @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  examination    Examination @relation(fields: [examinationId], references: [id])
+
+  @@unique([scheduleId, examinationId])
+}
+
+// 診察科
+model Department {
+  id             Int        @id @default(autoincrement())
+  name           String
+  isDeleted      Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  doctors        Doctor[]
+  schedules      Schedule[]
+}
+
+// 担当医
+model Doctor {
+  id             Int        @id @default(autoincrement())
+  name           String
+  departmentId   Int
+  isDeleted      Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  department     Department @relation(fields: [departmentId], references: [id])
+  schedules      Schedule[]
+}
+
+// 待機場所
+model WaitingArea {
+  id             Int        @id @default(autoincrement())
+  name           String
+  isDeleted      Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  schedules      Schedule[]
+}
+
+// 検査項目
+model Examination {
+  id             Int        @id @default(autoincrement())
+  name           String
+  isDeleted      Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  schedules      ScheduleExamination[]
+}
+
+// 管理者
+model Admin {
+  id             Int        @id @default(autoincrement())
+  username       String     @unique
+  passwordHash   String
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}

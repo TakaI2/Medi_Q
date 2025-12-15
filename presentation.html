@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medi_Q - QRコード来院者管理システム 提案資料</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+        }
+
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 0 auto;
+            background: white;
+            page-break-after: always;
+        }
+
+        .page:last-child {
+            page-break-after: auto;
+        }
+
+        /* ヘッダー */
+        .header {
+            text-align: center;
+            margin-bottom: 15mm;
+            padding-bottom: 5mm;
+            border-bottom: 3px solid #2563eb;
+        }
+
+        .header h1 {
+            font-size: 28pt;
+            color: #2563eb;
+            margin-bottom: 3mm;
+            font-weight: bold;
+        }
+
+        .header .subtitle {
+            font-size: 14pt;
+            color: #64748b;
+            margin-bottom: 2mm;
+        }
+
+        .header .date {
+            font-size: 10pt;
+            color: #94a3b8;
+        }
+
+        /* セクション */
+        .section {
+            margin-bottom: 8mm;
+        }
+
+        .section-title {
+            font-size: 16pt;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 3mm;
+            padding-left: 5mm;
+            border-left: 4px solid #2563eb;
+        }
+
+        .section-content {
+            padding-left: 5mm;
+        }
+
+        /* 課題・解決策 */
+        .problem-solution {
+            display: flex;
+            gap: 5mm;
+            margin-bottom: 5mm;
+        }
+
+        .problem-box, .solution-box {
+            flex: 1;
+            padding: 4mm;
+            border-radius: 2mm;
+        }
+
+        .problem-box {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+        }
+
+        .solution-box {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+        }
+
+        .problem-box h3, .solution-box h3 {
+            font-size: 12pt;
+            margin-bottom: 2mm;
+            color: #1e293b;
+        }
+
+        .problem-box ul, .solution-box ul {
+            padding-left: 5mm;
+            font-size: 10pt;
+        }
+
+        .problem-box li, .solution-box li {
+            margin-bottom: 1mm;
+        }
+
+        /* 機能一覧 */
+        .features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4mm;
+            margin-bottom: 5mm;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 2mm;
+            padding: 3mm;
+        }
+
+        .feature-card .icon {
+            font-size: 20pt;
+            margin-bottom: 2mm;
+        }
+
+        .feature-card h4 {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 2mm;
+        }
+
+        .feature-card p {
+            font-size: 9pt;
+            color: #475569;
+        }
+
+        /* フロー図 */
+        .flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f1f5f9;
+            padding: 4mm;
+            border-radius: 2mm;
+            margin-bottom: 5mm;
+        }
+
+        .flow-step {
+            text-align: center;
+            flex: 1;
+        }
+
+        .flow-step-icon {
+            font-size: 24pt;
+            margin-bottom: 2mm;
+        }
+
+        .flow-step-text {
+            font-size: 9pt;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .flow-arrow {
+            font-size: 18pt;
+            color: #64748b;
+        }
+
+        /* テーブル */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 4mm;
+            font-size: 9pt;
+        }
+
+        table th {
+            background: #2563eb;
+            color: white;
+            padding: 2mm;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        table td {
+            border: 1px solid #cbd5e1;
+            padding: 2mm;
+        }
+
+        table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        /* ハイライトボックス */
+        .highlight-box {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 2mm;
+            padding: 4mm;
+            margin-bottom: 5mm;
+        }
+
+        .highlight-box h3 {
+            font-size: 12pt;
+            color: #92400e;
+            margin-bottom: 2mm;
+        }
+
+        .highlight-box p {
+            font-size: 10pt;
+            color: #78350f;
+        }
+
+        /* コスト表 */
+        .cost-summary {
+            background: #ecfccb;
+            border: 2px solid #84cc16;
+            border-radius: 2mm;
+            padding: 4mm;
+            text-align: center;
+        }
+
+        .cost-summary h3 {
+            font-size: 14pt;
+            color: #365314;
+            margin-bottom: 2mm;
+        }
+
+        .cost-amount {
+            font-size: 24pt;
+            font-weight: bold;
+            color: #16a34a;
+        }
+
+        .cost-note {
+            font-size: 8pt;
+            color: #4d7c0f;
+            margin-top: 2mm;
+        }
+
+        /* フッター */
+        .footer {
+            text-align: center;
+            margin-top: 10mm;
+            padding-top: 3mm;
+            border-top: 1px solid #cbd5e1;
+            font-size: 8pt;
+            color: #94a3b8;
+        }
+
+        /* 印刷用 */
+        @media print {
+            body {
+                margin: 0;
+            }
+            .page {
+                margin: 0;
+                border: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ページ1 -->
+    <div class="page">
+        <div class="header">
+            <h1>Medi_Q（メディキュー）</h1>
+            <div class="subtitle">永生クリニック、来院者QRコード管理システム　導入提案</div>
+            <div class="date">提案日: 2025年11月18日</div>
+        </div>
+
+        <!-- プロジェクト概要 -->
+        <div class="section">
+            <h2 class="section-title">1. プロジェクト概要</h2>
+            <div class="section-content">
+                <p style="font-size: 10pt; margin-bottom: 3mm;">
+                    永生クリニックにおける来院者の受付・案内プロセスを、磁気カードからQRコードベースのシステムに移行し、<strong>効率的で信頼性の高い来院者管理システム</strong>を構築します。
+                </p>
+            </div>
+        </div>
+
+        <!-- 現状の課題と解決策 -->
+        <div class="section">
+            <h2 class="section-title">2. 現状の課題と解決策</h2>
+            <div class="section-content">
+                <div class="problem-solution">
+                    <div class="problem-box">
+                        <h3>❌ 現状の課題</h3>
+                        <ul>
+                            <li>磁気カードの経年劣化による読取エラー</li>
+                            <li>カード再発行のコストと手間</li>
+                            <li>受付業務の負担が大きい</li>
+                        </ul>
+                    </div>
+                    <div class="solution-box">
+                        <h3>✅ Medi_Qによる解決</h3>
+                        <ul>
+                            <li>QRコードで永続的に利用可能</li>
+                            <li>再発行が容易・低コスト</li>
+                            <li>自動受付で業務負担を軽減</li>
+                            <li>音声・印刷による自動案内</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主要機能 -->
+        <div class="section">
+            <h2 class="section-title">3. 主要機能</h2>
+            <div class="section-content">
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="icon">📷</div>
+                        <h4>QRコード受付</h4>
+                        <p>診察券のQRコードをWebカメラで読み取り、瞬時に患者情報を取得します。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🔊</div>
+                        <h4>音声案内</h4>
+                        <p>診察科・待機場所・担当医などの情報を自然な日本語音声で案内します。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🖨️</div>
+                        <h4>診察情報印刷</h4>
+                        <p>来院者の診察情報を自動的に紙に印刷し、手元で確認できます。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">📅</div>
+                        <h4>カレンダー連携</h4>
+                        <p>Googleカレンダーから診察予定を取得し、来院通知を自動送信します。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 利用フロー -->
+        <div class="section">
+            <h2 class="section-title">4. 利用フロー</h2>
+            <div class="section-content">
+                <div class="flow">
+                    <div class="flow-step">
+                        <div class="flow-step-icon">📷</div>
+                        <div class="flow-step-text">QRコード<br>読取</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-step-icon">📅</div>
+                        <div class="flow-step-text">診察予定<br>取得</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-step-icon">🔊</div>
+                        <div class="flow-step-text">音声案内<br>再生</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-step-icon">🖨️</div>
+                        <div class="flow-step-text">診察票<br>印刷</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-step">
+                        <div class="flow-step-icon">✅</div>
+                        <div class="flow-step-text">来院通知<br>送信</div>
+                    </div>
+                </div>
+                <p style="font-size: 9pt; text-align: center; color: #64748b;">所要時間: 約30秒</p>
+            </div>
+        </div>
+
+        <!-- 運用イメージ -->
+        <div class="section">
+            <h2 class="section-title">5. 運用イメージ</h2>
+            <div class="section-content">
+                <div style="text-align: center; margin-bottom: 3mm;">
+                    <img src="image.jpg" alt="Medi_Q運用イメージ" style="width: 100%; max-width: 170mm; height: auto; border: 2px solid #cbd5e1; border-radius: 2mm; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <p style="font-size: 9pt; color: #64748b; margin-top: 2mm;">
+                        <strong>実際の運用シーン</strong>: 患者様が診察券のQRコードをかざすだけで、カメラが読み取り、その場で診察情報を印刷します。
+                    </p>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3mm; font-size: 9pt;">
+                    <div style="text-align: center; padding: 2mm; background: #f8fafc; border-radius: 2mm;">
+                        <div style="font-size: 16pt; margin-bottom: 1mm;">💳</div>
+                        <strong>QRコード診察券</strong><br>
+                        <span style="color: #64748b;">患者様が持参</span>
+                    </div>
+                    <div style="text-align: center; padding: 2mm; background: #f8fafc; border-radius: 2mm;">
+                        <div style="font-size: 16pt; margin-bottom: 1mm;">💻</div>
+                        <strong>受付端末</strong><br>
+                        <span style="color: #64748b;">PC + Webカメラ</span>
+                    </div>
+                    <div style="text-align: center; padding: 2mm; background: #f8fafc; border-radius: 2mm;">
+                        <div style="font-size: 16pt; margin-bottom: 1mm;">🖨️</div>
+                        <strong>診察票印刷</strong><br>
+                        <span style="color: #64748b;">自動出力</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 音声案内の例 -->
+        <div class="section">
+            <div class="highlight-box">
+                <h3>💬 音声案内の例</h3>
+                <p>「○○様、検査がありますので、<strong>受付</strong>前でお待ちください。」</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            Medi_Q - QRコード来院者管理システム | Page 1/2
+        </div>
+    </div>
+
+    <!-- ページ2 -->
+    <div class="page">
+        <div class="header">
+            <h1>Medi_Q（メディキュー）</h1>
+            <div class="subtitle">技術仕様・導入計画</div>
+        </div>
+
+        <!-- 技術構成 -->
+        <div class="section">
+            <h2 class="section-title">6. 技術構成</h2>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">項目</th>
+                            <th>技術・製品</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>フロントエンド</strong></td>
+                            <td>Next.js 14 + React 18 + TypeScript</td>
+                        </tr>
+                        <tr>
+                            <td><strong>カレンダー連携</strong></td>
+                            <td>Google Calendar API / Google Apps Script</td>
+                        </tr>
+                        <tr>
+                            <td><strong>QRコード読取</strong></td>
+                            <td>@zxing/library（JavaScript）</td>
+                        </tr>
+                        <tr>
+                            <td><strong>音声合成</strong></td>
+                            <td>VOICEVOX（無料、商用利用可）</td>
+                        </tr>
+                        <tr>
+                            <td><strong>印刷</strong></td>
+                            <td>ブラウザ標準印刷機能</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ホスティング</strong></td>
+                            <td>Vercel（無料枠利用可）</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="font-size: 8pt; color: #64748b; margin-top: 2mm;">※ソフトウェアは全て無料またはオープンソースを使用</p>
+            </div>
+        </div>
+
+        <!-- 推奨ハードウェア -->
+        <div class="section">
+            <h2 class="section-title">7. 推奨ハードウェア</h2>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">機器</th>
+                            <th style="width: 40%;">推奨製品例</th>
+                            <th style="width: 20%;">価格（目安）</th>
+                            <th>備考</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>PC</strong></td>
+                            <td>既存PCを利用可能</td>
+                            <td>¥0</td>
+                            <td>Windows 10/11 または macOS 12+</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Webカメラ</strong></td>
+                            <td>Logicool C920x / C270</td>
+                            <td>¥3,000〜¥8,000</td>
+                            <td>HD以上推奨、USB接続</td>
+                        </tr>
+                        <tr>
+                            <td><strong>プリンタ</strong></td>
+                            <td>Canon PIXUS TS3530<br>Brother HL-L2375DW</td>
+                            <td>¥8,000〜¥18,000</td>
+                            <td>既存プリンタ利用可（¥0）</td>
+                        </tr>
+                        <tr>
+                            <td><strong>その他</strong></td>
+                            <td>USBケーブル等</td>
+                            <td>¥1,000</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 導入コスト -->
+        <div class="section">
+            <h2 class="section-title">8. 導入コスト</h2>
+            <div class="section-content">
+                <table style="margin-bottom: 3mm;">
+                    <thead>
+                        <tr>
+                            <th>項目</th>
+                            <th style="width: 30%;">低コスト構成</th>
+                            <th style="width: 30%;">推奨構成</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Webカメラ</td>
+                            <td>¥3,000</td>
+                            <td>¥8,000</td>
+                        </tr>
+                        <tr>
+                            <td>プリンタ</td>
+                            <td>¥0（既存利用）</td>
+                            <td>¥8,000</td>
+                        </tr>
+                        <tr>
+                            <td>その他</td>
+                            <td>¥1,000</td>
+                            <td>¥1,000</td>
+                        </tr>
+                        <tr style="background: #fef3c7; font-weight: bold;">
+                            <td>合計</td>
+                            <td>¥4,000</td>
+                            <td>¥17,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="cost-summary">
+                    <h3>✨ ランニングコスト</h3>
+                    <div class="cost-amount">¥0/月</div>
+                    <div class="cost-note">※ソフトウェア・クラウドサービスは全て無料枠を使用</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 開発スケジュール -->
+        <div class="section">
+            <h2 class="section-title">9. 開発スケジュール</h2>
+            <div class="section-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;">フェーズ</th>
+                            <th style="width: 15%;">期間</th>
+                            <th>主な内容</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Phase 1: 企画・要件定義</td>
+                            <td>1日</td>
+                            <td>要件整理、設計書作成、プレゼン資料作成</td>
+                        </tr>
+                        <tr>
+                            <td>Phase 2: プロトタイプ開発</td>
+                            <td>2週間</td>
+                            <td>環境構築、QRリーダー、音声案内、印刷機能実装</td>
+                        </tr>
+                        <tr>
+                            <td>Phase 3: 機能拡張・テスト</td>
+                            <td>1週間</td>
+                            <td>設定画面、UI改善、統合テスト</td>
+                        </tr>
+                        <tr>
+                            <td>Phase 4: デプロイ・運用準備</td>
+                            <td>1週間</td>
+                            <td>本番デプロイ、スタッフトレーニング、受入テスト</td>
+                        </tr>
+                        <tr style="background: #dbeafe; font-weight: bold;">
+                            <td>Phase 5: 本番稼働</td>
+                            <td>-</td>
+                            <td>本番稼働開始・継続的改善</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="font-size: 9pt; text-align: center; color: #64748b; margin-top: 2mm;">
+                    <strong>総期間: 約5週間</strong>（バッファ含めて6週間）
+                </p>
+            </div>
+        </div>
+
+        <!-- 期待される効果 -->
+        <div class="section">
+            <h2 class="section-title">10. 期待される効果</h2>
+            <div class="section-content">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4mm;">
+                    <div style="background: #f0fdf4; border: 2px solid #22c55e; border-radius: 2mm; padding: 3mm;">
+                        <h4 style="font-size: 11pt; color: #166534; margin-bottom: 2mm;">✅ 業務効率化</h4>
+                        <ul style="font-size: 9pt; padding-left: 5mm;">
+                            <li>受付時間の短縮（約50%削減）</li>
+                            <li>スタッフの業務負担軽減</li>
+                            <li>エラー・トラブルの減少</li>
+                        </ul>
+                    </div>
+                    <div style="background: #f0fdf4; border: 2px solid #22c55e; border-radius: 2mm; padding: 3mm;">
+                        <h4 style="font-size: 11pt; color: #166534; margin-bottom: 2mm;">😊 患者満足度向上</h4>
+                        <ul style="font-size: 9pt; padding-left: 5mm;">
+                            <li>待ち時間の短縮</li>
+                            <li>わかりやすい音声案内</li>
+                            <li>診察情報の可視化</li>
+                        </ul>
+                    </div>
+                    <div style="background: #f0fdf4; border: 2px solid #22c55e; border-radius: 2mm; padding: 3mm;">
+                        <h4 style="font-size: 11pt; color: #166534; margin-bottom: 2mm;">💰 コスト削減</h4>
+                        <ul style="font-size: 9pt; padding-left: 5mm;">
+                            <li>磁気カード関連コスト削減</li>
+                            <li>低い初期投資・運用コスト</li>
+                            <li>既存設備の有効活用</li>
+                        </ul>
+                    </div>
+                    <div style="background: #f0fdf4; border: 2px solid #22c55e; border-radius: 2mm; padding: 3mm;">
+                        <h4 style="font-size: 11pt; color: #166534; margin-bottom: 2mm;">🔒 信頼性向上</h4>
+                        <ul style="font-size: 9pt; padding-left: 5mm;">
+                            <li>カード劣化問題の解消</li>
+                            <li>高精度な情報管理</li>
+                            <li>来院通知の自動化</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Medi_Q - QRコード来院者管理システム | Page 2/2
+        </div>
+    </div>
+</body>
+</html>
