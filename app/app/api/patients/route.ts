@@ -62,40 +62,50 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     const body = await request.json();
 
     // バリデーション
-    if (!body.patientCode || !body.name || !body.nameKana) {
+    if (!body.name || !body.nameKana) {
       return NextResponse.json(
         {
           success: false,
           error: {
             code: ErrorCode.VALIDATION_ERROR,
-            message: '患者コード、氏名、ふりがなは必須です',
+            message: '氏名、ふりがなは必須です',
           },
         },
         { status: 400 }
       );
     }
 
-    // 重複チェック
-    const existing = await prisma.patient.findUnique({
-      where: { patientCode: body.patientCode },
+    // 患者コード自動生成
+    const latestPatient = await prisma.patient.findFirst({
+      where: { isDeleted: false },
+      orderBy: { patientCode: 'desc' },
     });
 
-    if (existing) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: ErrorCode.VALIDATION_ERROR,
-            message: 'この患者コードは既に使用されています',
-          },
-        },
-        { status: 400 }
-      );
+    let nextPatientCode = 'P00001';
+    if (latestPatient) {
+      // 既存の患者コードから数値部分を抽出
+      const match = latestPatient.patientCode.match(/^P(\d+)$/);
+      if (match) {
+        const nextNumber = parseInt(match[1], 10) + 1;
+        if (nextNumber > 99999) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: {
+                code: ErrorCode.VALIDATION_ERROR,
+                message: '患者コードの上限に達しました（P99999）',
+              },
+            },
+            { status: 400 }
+          );
+        }
+        nextPatientCode = `P${nextNumber.toString().padStart(5, '0')}`;
+      }
     }
 
     const patient = await prisma.patient.create({
       data: {
-        patientCode: body.patientCode,
+        patientCode: nextPatientCode,
         name: body.name,
         nameKana: body.nameKana,
         voiceTemplate: body.voiceTemplate ?? null,

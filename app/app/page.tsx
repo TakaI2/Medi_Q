@@ -98,29 +98,45 @@ export default function Home() {
     };
   }, [patientInfo, voiceAvailable]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleScan = async (patientId: string) => {
-    console.log('Patient ID scanned:', patientId);
+  const handleScan = async (patientCode: string) => {
+    console.log('Patient Code scanned:', patientCode);
     setError('');
     setLoading(true);
 
     try {
-      // TODO: Phase 3でSQLite APIに置き換え予定
-      // 現在はモックデータモードで動作
-      console.log('📝 モックデータモードで動作中（Phase 3でSQLite API実装予定）');
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // 受付API呼び出し
+      const response = await fetch('/api/reception/checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patientCode }),
+      });
 
-      const mockInfo: PatientInfo = {
-        patientId,
-        patientName: '山田太郎',
-        examDate: new Date().toISOString(),
-        examinations: ['血液検査', 'MRI'],
-        doctor: '田中花子',
-        department: '内科',
-        waitingArea: '2階待合室A',
-      };
+      const data = await response.json();
 
-      setPatientInfo(mockInfo);
-      console.log('✅ モックデータ表示完了');
+      if (data.success) {
+        const { patient, schedule } = data.data;
+
+        // 予約がある場合のみ診察票画面を表示
+        if (schedule) {
+          const info: PatientInfo = {
+            patientId: patient.patientCode,
+            patientName: patient.name,
+            examDate: schedule.date,
+            examinations: schedule.examinations || [],
+            doctor: schedule.doctor,
+            department: schedule.department,
+            waitingArea: schedule.waitingArea,
+          };
+          setPatientInfo(info);
+          console.log('✅ 患者情報・予約情報取得完了');
+        } else {
+          // 予約がない場合はエラーメッセージのみ表示
+          setError(`${patient.name} 様\n本日の診察予定が見つかりませんでした。\n受付窓口にお越しください。`);
+          console.log('⚠️ 予約なし - エラーメッセージ表示');
+        }
+      } else {
+        setError(data.error?.message || '患者情報の取得に失敗しました');
+      }
     } catch (err) {
       console.error('Error fetching patient info:', err);
       setError('データ取得エラーが発生しました');
@@ -325,7 +341,7 @@ export default function Home() {
               <span className="text-2xl">⚠️</span>
               <div>
                 <h3 className="font-bold text-red-900 mb-1">エラー</h3>
-                <p className="text-red-700 text-sm">{error}</p>
+                <p className="text-red-700 text-sm whitespace-pre-line">{error}</p>
               </div>
             </div>
           </div>
@@ -349,7 +365,7 @@ export default function Home() {
                 <span className="text-2xl">🗄️</span>
                 <div>
                   <p className="text-xs text-gray-500">データベース</p>
-                  <p className="font-medium text-yellow-600">モックモード</p>
+                  <p className="font-medium text-green-600">接続済み</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">

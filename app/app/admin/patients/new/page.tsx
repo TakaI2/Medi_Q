@@ -11,7 +11,6 @@ export default function NewPatientPage() {
   const [error, setError] = useState<string | null>(null);
 
   // フォームデータ
-  const [patientCode, setPatientCode] = useState('');
   const [name, setName] = useState('');
   const [nameKana, setNameKana] = useState('');
 
@@ -41,7 +40,7 @@ export default function NewPatientPage() {
     e.preventDefault();
     setError(null);
 
-    if (!patientCode || !name || !nameKana) {
+    if (!name || !nameKana) {
       setError('全ての項目を入力してください');
       return;
     }
@@ -53,7 +52,6 @@ export default function NewPatientPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          patientCode,
           name,
           nameKana,
         }),
@@ -107,20 +105,10 @@ export default function NewPatientPage() {
             </div>
           )}
 
-          {/* 患者コード */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              患者コード <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={patientCode}
-              onChange={(e) => setPatientCode(e.target.value)}
-              placeholder="例: P00004"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono"
-            />
-            <p className="mt-1 text-sm text-gray-500">
-              QRコードに使用される一意のコードです
+          {/* 患者コード自動生成の説明 */}
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>📝 患者コード:</strong> 登録時に自動的に採番されます（P00001, P00002, ...）
             </p>
           </div>
 
