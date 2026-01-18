@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import {
   ApiResponse,
-  Schedule,
+  ScheduleData,
   UpdateScheduleRequest,
   ErrorCode,
   ScheduleStatus,
@@ -28,8 +28,8 @@ type ScheduleWithRelations = Prisma.ScheduleGetPayload<{
   };
 }>;
 
-// Prisma の結果を Schedule 型に変換
-function toScheduleResponse(schedule: ScheduleWithRelations | null): Schedule | null {
+// Prisma の結果を ScheduleData 型に変換
+function toScheduleResponse(schedule: ScheduleWithRelations | null): ScheduleData | null {
   if (!schedule) return null;
 
   return {
@@ -44,8 +44,6 @@ function toScheduleResponse(schedule: ScheduleWithRelations | null): Schedule | 
     note: schedule.note,
     status: schedule.status as ScheduleStatus,
     visitedAt: schedule.visitedAt?.toISOString() ?? null,
-    createdAt: schedule.createdAt.toISOString(),
-    updatedAt: schedule.updatedAt.toISOString(),
     patient: schedule.patient
       ? {
           id: schedule.patient.id,
@@ -93,7 +91,7 @@ function toScheduleResponse(schedule: ScheduleWithRelations | null): Schedule | 
 export async function GET(
   request: NextRequest,
   context: RouteContext
-): Promise<NextResponse<ApiResponse<Schedule>>> {
+): Promise<NextResponse<ApiResponse<ScheduleData>>> {
   try {
     const { id } = await context.params;
     const scheduleId = parseInt(id, 10);
@@ -168,7 +166,7 @@ export async function GET(
 export async function PUT(
   request: NextRequest,
   context: RouteContext
-): Promise<NextResponse<ApiResponse<Schedule>>> {
+): Promise<NextResponse<ApiResponse<ScheduleData>>> {
   try {
     const { id } = await context.params;
     const scheduleId = parseInt(id, 10);

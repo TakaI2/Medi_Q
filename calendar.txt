@@ -1,5 +1,0 @@
- GOOGLE_CALENDAR_ID: https://calendar.google.com/calendar/embed?src=ca1dcf0e30beab1058884f6ed69cfcc5783ea98f8044e9e1df995ccd59bdf701%40group.calendar.google.com&ctz=Asia%2FTokyo
-
-GOOGLE_SERVICE_ACCOUNT_EMAIL: takai2-gtts@plucky-mile-413309.iam.gserviceaccount.com
-
-GOOGLE_PRIVATE_KEY:	a1373a2a1ff66bcb8f749b942d0880deb2204a24

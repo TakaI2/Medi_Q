@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import {
   ApiResponse,
-  Schedule,
+  ScheduleData,
   CreateScheduleRequest,
   ErrorCode,
   ScheduleStatus,
@@ -24,8 +24,8 @@ type ScheduleWithRelations = Prisma.ScheduleGetPayload<{
   };
 }>;
 
-// Prisma の結果を Schedule 型に変換
-function toScheduleResponse(schedule: ScheduleWithRelations | null): Schedule | null {
+// Prisma の結果を ScheduleData 型に変換
+function toScheduleResponse(schedule: ScheduleWithRelations | null): ScheduleData | null {
   if (!schedule) return null;
 
   return {
@@ -40,8 +40,6 @@ function toScheduleResponse(schedule: ScheduleWithRelations | null): Schedule | 
     note: schedule.note,
     status: schedule.status as ScheduleStatus,
     visitedAt: schedule.visitedAt?.toISOString() ?? null,
-    createdAt: schedule.createdAt.toISOString(),
-    updatedAt: schedule.updatedAt.toISOString(),
     patient: schedule.patient
       ? {
           id: schedule.patient.id,
@@ -86,7 +84,7 @@ function toScheduleResponse(schedule: ScheduleWithRelations | null): Schedule | 
 }
 
 // GET /api/schedules - スケジュール一覧取得
-export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<Schedule[]>>> {
+export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<ScheduleData[]>>> {
   try {
     const { searchParams } = new URL(request.url);
 
@@ -149,9 +147,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
       orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
     });
 
-    const response: Schedule[] = schedules
+    const response: ScheduleData[] = schedules
       .map((s) => toScheduleResponse(s))
-      .filter((s): s is Schedule => s !== null);
+      .filter((s): s is ScheduleData => s !== null);
 
     return NextResponse.json({ success: true, data: response });
   } catch (error) {
@@ -170,7 +168,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
 }
 
 // POST /api/schedules - スケジュール作成
-export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<Schedule>>> {
+export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<ScheduleData>>> {
   try {
     const body: CreateScheduleRequest = await request.json();
 

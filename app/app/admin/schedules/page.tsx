@@ -6,7 +6,7 @@ import { Calendar, dateFnsLocalizer, View, SlotInfo } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, startOfMonth, endOfMonth, addDays, subDays } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { APP_NAME } from '@/config/constants';
-import { Schedule, ApiResponse } from '@/types';
+import { ScheduleData, ApiResponse } from '@/types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 // date-fns localizer設定
@@ -25,7 +25,7 @@ interface CalendarEvent {
   title: string;
   start: Date;
   end: Date;
-  resource: Schedule;
+  resource: ScheduleData;
 }
 
 // ステータス色マッピング
@@ -37,11 +37,11 @@ const statusColors: Record<string, string> = {
 
 export default function SchedulesPage() {
   const router = useRouter();
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [schedules, setSchedules] = useState<ScheduleData[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<View>('month');
-  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null);
+  const [selectedSchedule, setSelectedSchedule] = useState<ScheduleData | null>(null);
 
   // スケジュール取得
   const fetchSchedules = useCallback(async (date: Date) => {
@@ -57,7 +57,7 @@ export default function SchedulesPage() {
       });
 
       const response = await fetch(`/api/schedules?${params}`);
-      const data: ApiResponse<Schedule[]> = await response.json();
+      const data: ApiResponse<ScheduleData[]> = await response.json();
 
       if (data.success && data.data) {
         setSchedules(data.data);
