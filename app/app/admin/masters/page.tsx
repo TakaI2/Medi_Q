@@ -147,9 +147,12 @@ export default function MastersPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-sm text-gray-500">
-              ※ マスタの追加・編集機能は今後実装予定です
-            </p>
+            <a
+              href="/admin/masters/doctors"
+              className="mt-4 block w-full px-4 py-2 text-center text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+            >
+              管理画面へ →
+            </a>
           </div>
 
           {/* 待機場所マスタ */}
@@ -170,9 +173,12 @@ export default function MastersPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-sm text-gray-500">
-              ※ マスタの追加・編集機能は今後実装予定です
-            </p>
+            <a
+              href="/admin/masters/waiting-areas"
+              className="mt-4 block w-full px-4 py-2 text-center text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+            >
+              管理画面へ →
+            </a>
           </div>
 
           {/* 検査項目マスタ */}
@@ -193,9 +199,12 @@ export default function MastersPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-sm text-gray-500">
-              ※ マスタの追加・編集機能は今後実装予定です
-            </p>
+            <a
+              href="/admin/masters/examinations"
+              className="mt-4 block w-full px-4 py-2 text-center text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+            >
+              管理画面へ →
+            </a>
           </div>
         </div>
 
