@@ -116,9 +116,12 @@ export default function MastersPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-sm text-gray-500">
-              ※ マスタの追加・編集機能は今後実装予定です
-            </p>
+            <a
+              href="/admin/masters/departments"
+              className="mt-4 block w-full px-4 py-2 text-center text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+            >
+              管理画面へ →
+            </a>
           </div>
 
           {/* 担当医マスタ */}
@@ -197,10 +200,10 @@ export default function MastersPage() {
         </div>
 
         {/* 注意書き */}
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>📝 開発状況:</strong> 現在はマスタデータの閲覧のみ可能です。追加・編集・削除機能は今後のバージョンで実装予定です。
-            マスタデータの変更が必要な場合は、データベースを直接編集するか、シードデータを更新してください。
+        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-sm text-green-800">
+            <strong>✅ マスタ管理機能:</strong> 各マスタデータの追加・編集・削除が可能です。
+            管理画面へのリンクから各マスタの管理画面にアクセスしてください。
           </p>
         </div>
       </main>
