@@ -9,7 +9,7 @@ echo.
 
 REM カレントディレクトリを取得
 set "SCRIPT_DIR=%~dp0"
-set "APP_DIR=%SCRIPT_DIR%..\app"
+set "APP_DIR=%SCRIPT_DIR%app"
 
 REM Node.jsのパスを設定（システムのNode.jsを使用）
 where node >nul 2>nul
@@ -42,6 +42,7 @@ cd /d "%APP_DIR%"
 REM 環境変数の設定
 set "NODE_ENV=production"
 set "PORT=3000"
+set "HOSTNAME=0.0.0.0"
 
 REM 初回起動チェック（node_modulesが存在しない場合）
 if not exist "node_modules" (
@@ -85,7 +86,7 @@ timeout /t 5 /nobreak > nul
 start http://localhost:3000
 
 REM Next.jsアプリケーション起動
-call npm start
+call node server.js
 
 REM 終了時の処理
 echo.

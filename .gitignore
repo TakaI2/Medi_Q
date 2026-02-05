@@ -5,6 +5,7 @@ node_modules/
 .next/
 out/
 build/
+dist/
 
 # Database
 *.db
@@ -42,6 +43,7 @@ app/lib/generated/
 !package-lock.json
 !tsconfig.json
 !.textlintrc.json
+!.claude/tasks.json
 
 # Windows
 nul

@@ -59,9 +59,12 @@ echo.
 
 REM Standaloneファイルをコピー
 echo [5/7] Standaloneファイルをコピー中...
-xcopy /s /e /i /y ".next\standalone" "%OUTPUT_DIR%\app"
+xcopy /s /e /i /y ".next\standalone\*" "%OUTPUT_DIR%\app\"
+xcopy /s /e /i /y ".next\standalone\.next\*" "%OUTPUT_DIR%\app\.next\"
 xcopy /s /e /i /y ".next\static" "%OUTPUT_DIR%\app\.next\static"
-xcopy /s /e /i /y "public" "%OUTPUT_DIR%\app\public"
+if exist "public" (
+    xcopy /s /e /i /y "public" "%OUTPUT_DIR%\app\public"
+)
 echo.
 
 REM Prismaファイルをコピー

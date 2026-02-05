@@ -1,0 +1,211 @@
+{
+  "project": {
+    "name": "Medi_Q",
+    "startDate": "2025-11-14",
+    "targetReleaseDate": "2026-02-10",
+    "currentPhase": "Phase2-4-Development"
+  },
+  "phases": [
+    {
+      "id": "phase1",
+      "name": "Phase 1: 企画・要件定義",
+      "status": "completed",
+      "startDate": "2025-11-14",
+      "endDate": "2025-11-30",
+      "progress": 100
+    },
+    {
+      "id": "phase2",
+      "name": "Phase 2: 基盤構築",
+      "status": "in-progress",
+      "startDate": "2025-11-14",
+      "endDate": "2026-01-15",
+      "progress": 84
+    },
+    {
+      "id": "phase3",
+      "name": "Phase 3: API実装",
+      "status": "in-progress",
+      "startDate": "2025-12-01",
+      "endDate": "2026-01-20",
+      "progress": 73
+    },
+    {
+      "id": "phase4",
+      "name": "Phase 4: 管理画面実装",
+      "status": "in-progress",
+      "startDate": "2025-12-05",
+      "endDate": "2026-01-25",
+      "progress": 69
+    },
+    {
+      "id": "phase5",
+      "name": "Phase 5: 受付画面改修",
+      "status": "in-progress",
+      "startDate": "2026-01-20",
+      "endDate": "2026-01-27",
+      "progress": 20
+    },
+    {
+      "id": "phase6",
+      "name": "Phase 6: テスト・品質保証",
+      "status": "pending",
+      "startDate": "2026-01-25",
+      "endDate": "2026-02-05",
+      "progress": 0
+    },
+    {
+      "id": "phase7",
+      "name": "Phase 7: デプロイ・運用準備",
+      "status": "in-progress",
+      "startDate": "2026-02-04",
+      "endDate": "2026-02-10",
+      "progress": 75
+    }
+  ],
+  "tasks": [],
+  "completedTasks": [
+    {
+      "id": "T1-001",
+      "name": "planning.txt内容確認",
+      "completedDate": "2025-11-14"
+    },
+    {
+      "id": "T2-001",
+      "name": "Prisma インストール",
+      "completedDate": "2025-11-15"
+    },
+    {
+      "id": "T2-002",
+      "name": "schema.prisma 作成",
+      "completedDate": "2025-11-16"
+    },
+    {
+      "id": "T2-015",
+      "name": "Google Calendar関連コード削除",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T2-018",
+      "name": "型定義更新（types/index.ts）",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T3-001",
+      "name": "API: GET /api/patients（一覧）",
+      "completedDate": "2025-12-01"
+    },
+    {
+      "id": "T3-014",
+      "name": "API: /api/masters/departments（CRUD）",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T3-015",
+      "name": "API: /api/masters/doctors（CRUD）",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T3-016",
+      "name": "API: /api/masters/waiting-areas（CRUD）",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T3-017",
+      "name": "API: /api/masters/examinations（CRUD）",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T4-008",
+      "name": "患者一覧画面",
+      "completedDate": "2025-12-10"
+    },
+    {
+      "id": "T4-025",
+      "name": "予約詳細画面（/admin/schedules/[id]）",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T4-026",
+      "name": "予約編集機能",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T3-018",
+      "name": "API: POST /api/reception/checkin",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T4-028",
+      "name": "診察科マスタ管理画面",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T4-005",
+      "name": "ダッシュボード画面",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T4-006",
+      "name": "本日の予約一覧表示",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T4-007",
+      "name": "来院状況サマリー表示",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T4-029",
+      "name": "担当医マスタ管理画面",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T4-030",
+      "name": "待機場所マスタ管理画面",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T4-031",
+      "name": "検査項目マスタ管理画面",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T4-035",
+      "name": "設定画面（パスワード変更）",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T5-001",
+      "name": "受付画面SQLite対応確認",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T7-001",
+      "name": "リリースノート作成",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T7-002",
+      "name": "配布前チェックリスト作成",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T7-003",
+      "name": "ビルドガイド作成",
+      "completedDate": "2026-02-04"
+    },
+    {
+      "id": "T7-004",
+      "name": "ポータブル版動作テスト・ビルドスクリプト修正",
+      "completedDate": "2026-02-05"
+    }
+  ],
+  "metrics": {
+    "totalEstimatedHours": 0,
+    "totalActualHours": 0,
+    "completedTasks": 63,
+    "pendingTasks": 45,
+    "overallProgress": 58
+  }
+}
